@@ -1,0 +1,13 @@
+; Plan for problem_known_location.pddl
+; The robot starts at entrance.
+; It moves to the known victim room, inspects it, detects the victim, and rescues.
+; Detection is required before rescue because rescue depends on victim-detected.
+
+0.0000: (move rescuebot entrance corridor)
+0.0010: (move rescuebot corridor room1)
+0.0020: (inspect-victim-room rescuebot room1)
+0.0030: (rescue rescuebot room1)
+
+; Planner result:
+; Solution found.
+; Planner found 1 plan.
