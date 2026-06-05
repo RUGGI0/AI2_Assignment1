@@ -1,0 +1,22 @@
+# Local Obsidian dashboard
+Dashboard.md
+
+# Obsidian local workspace/cache
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/cache/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Python/cache files
+__pycache__/
+*.pyc
+
+# Planner temporary/generated files
+*.sas
+output.sas
+sas_plan
+*.tmp
+*.log
