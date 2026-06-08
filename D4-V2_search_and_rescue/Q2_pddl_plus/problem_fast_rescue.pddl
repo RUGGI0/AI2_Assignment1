@@ -1,49 +1,50 @@
 (define (problem search-and-rescue-fast)
 
-  ;; Fast rescue problem for the Q2 PDDL+ model.
-  ;;
-  ;; The robot starts close enough to the victim to perform:
-  ;; move -> inspect -> rescue
-  ;; before victim-health reaches zero.
-  ;;
-  ;; Rescue is interpreted as in-place stabilisation, not evacuation.
+  ;; Fast rescue instance for Q2.
+  ;; The robot must reach the infirmary, inspect the victim room,
+  ;; detect the victim, and rescue before health reaches zero.
+
   (:domain search-and-rescue-q2)
 
   (:objects
     rescuebot - robot
-    entrance corridor infirmary - room
+    entrance corridor lab infirmary - room
   )
 
   (:init
 
-    ;; Initial robot position.
-    (robot-at rescuebot entrance)
-
-    ;; The victim is initially alive.
-    ;; While victim-alive is true and rescued is false, the health-decrease
-    ;; process in the domain continuously reduces victim-health.
+    ;; Mission status.
+    (mission-active)
     (victim-alive)
 
+    ;; Robot status.
+    (available rescuebot)
+    (robot-at rescuebot entrance)
+
     ;; Known building topology.
-    ;; Connections are explicitly bidirectional because connected is not
-    ;; automatically symmetric in PDDL.
     (connected entrance corridor)
     (connected corridor entrance)
 
-    (connected corridor infirmary)
-    (connected infirmary corridor)
+    (connected corridor lab)
+    (connected lab corridor)
 
-    ;; Real victim location in the model.
-    ;; The robot still needs inspection to produce victim-detected.
+    (connected lab infirmary)
+    (connected infirmary lab)
+
+    ;; Only the victim room needs to be inspectable in the fast instance.
+    ;; This avoids irrelevant empty-room inspections in the fast rescue plan.
+    (uninspected infirmary)
+
+    ;; Real victim location.
     (victim-at infirmary)
 
-    ;; Initial numeric value.
-    ;; A health value of 10 is high enough for the fast rescue trace.
+    ;; Numeric fluents.
+    ;; Health is high enough for the fast rescue to succeed:
+    ;; move 2 + move 2 + move 2 + inspect 1 + rescue 1 = 8 time units.
     (= (victim-health) 10)
+    (= (activity-progress) 0)
   )
 
-  ;; The goal is successful in-place rescue.
-  ;; The victim must be stabilised before victim-dies is triggered.
   (:goal
     (and
       (rescued)

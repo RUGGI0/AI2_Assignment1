@@ -1,0 +1,34 @@
+; Output for problem_delayed_rescue.pddl
+; This is the delayed rescue experiment for Q2.
+; The robot is forced to wait before completing the rescue.
+; Victim health starts at 10 and decreases continuously over time.
+; The delayed sequence would require:
+;
+; wait                         = 5 time units
+; move entrance -> corridor    = 2 time units
+; move corridor -> lab         = 2 time units
+; move lab -> infirmary        = 2 time units
+; inspect victim room          = 1 time unit
+; rescue                       = 1 time unit
+;
+; Total required time = 13.
+; Since health starts at 10 and decreases at rate 1 per time unit,
+; the victim-dies event should trigger before rescue can be completed.
+; Therefore, the expected modelling result is failure: no valid delayed rescue plan.
+
+; Planner tested:
+; ENHSP via Planning Domains
+; https://solver.planning.domains:5001/package/enhsp/solve
+
+; Planner output observed:
+; Plan found:
+; Metric: 0
+; Makespan: 0
+; States evaluated: 286
+; Planner found 1 plan(s).
+
+; Validation note:
+; The returned empty plan is not semantically valid for this problem.
+; The goal requires both (waited) and (rescued), and neither predicate is true in the initial state.
+; Therefore, the planner output is treated as unsupported/inconsistent for this PDDL+ delayed instance.
+; The model-level analysis indicates that the delayed rescue should fail because victim health reaches zero before rescue completion.

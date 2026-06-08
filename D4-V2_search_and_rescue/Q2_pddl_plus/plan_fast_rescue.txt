@@ -1,0 +1,24 @@
+; Plan for problem_fast_rescue.pddl
+; The robot starts at entrance.
+; It moves through the known topology to the infirmary, inspects the victim room, detects the victim, and rescues.
+; Victim health starts at 10 and decreases continuously over time.
+; The fast rescue reaches the goal at t=8, before victim health reaches zero.
+; Detection is required before rescue because rescue depends on victim-detected.
+; Finish events are automatic PDDL+ events and are not listed as planner-controlled actions.
+
+1.0000: (start-move rescuebot entrance corridor)
+3.0000: (start-move rescuebot corridor lab)
+5.0000: (start-move rescuebot lab infirmary)
+7.0000: (start-inspect-victim-room rescuebot infirmary)
+8.0000: (start-rescue rescuebot infirmary)
+
+; Automatic PDDL+ events:
+; finish-move automatically completes each movement when activity-progress reaches the movement duration.
+; finish-inspect-victim-room automatically produces inspected and victim-detected.
+; finish-rescue automatically produces rescued.
+; health-degradation continuously decreases victim-health while mission-active and victim-alive are true.
+
+; Planner result:
+; Solution found.
+; ENHSP visual timeline reaches rescued at t=8.0000.
+; Planner found 5 plan steps in the visual timeline.
