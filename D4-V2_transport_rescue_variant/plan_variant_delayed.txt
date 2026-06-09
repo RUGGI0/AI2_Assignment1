@@ -1,0 +1,38 @@
+; Output for problem_variant_delayed.pddl
+; Alternative Q2 variant: rescue means transporting the patient back to the safe base.
+; This delayed instance forces an initial waiting phase before the robot can start
+; movement, inspection, loading, transport, and unloading.
+;
+; The domain uses the predicate waited as a gate:
+; - operational actions require waited;
+; - the delayed problem starts with delay-required;
+; - finish-wait produces waited;
+; - only after waiting can the robot continue the rescue sequence.
+;
+; Victim health starts at 25 and decreases continuously over time.
+; The fast variant succeeds because the patient can be transported and unloaded at base
+; before health reaches zero.
+;
+; In the delayed variant, the initial wait makes the required completion time exceed
+; the available health threshold. The expected model-level result is therefore failure:
+; the victim should die before the patient can be successfully unloaded at the base.
+
+; Planner tested:
+; ENHSP via Planning Domains
+
+; Planner output observed:
+; Plan found:
+; Metric: 0
+; Makespan: 0
+; States evaluated: 627
+; Planner found 1 plan(s).
+
+; Validation note:
+; The returned empty plan is not semantically valid for this problem.
+; The goal requires waited, rescued patient1, and patient-at patient1 base.
+; These predicates are not all true in the initial state.
+; Therefore, the empty plan is treated as an inconsistent/unsupported planner output
+; for this PDDL+ delayed variant.
+;
+; The model-level analysis indicates that the delayed transport rescue should fail
+; because the forced wait makes rescue completion occur after victim-health reaches zero.

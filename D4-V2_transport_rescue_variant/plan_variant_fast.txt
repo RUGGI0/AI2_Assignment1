@@ -1,0 +1,40 @@
+; Plan for problem_variant_fast.pddl
+; Alternative Q2 variant: rescue means transporting the patient back to the safe base.
+; The robot starts at base.
+; It moves to the victim room, inspects it, detects the patient, loads the patient,
+; transports the patient back through the known topology, and unloads the patient at base.
+; Detection is required before loading because start-load-patient depends on victim-detected.
+; The final goal requires both:
+; - the patient is rescued;
+; - the patient is physically located at base.
+;
+; Victim health starts at 25 and decreases continuously over time.
+; The visual ENHSP timeline reaches the final unload phase around t=22.
+; The automatic finish-unload-patient-at-base event completes rescue around t=23.
+; Since 25 - 23 = 2, the patient remains alive and the fast transport rescue succeeds.
+;
+; Finish events are automatic PDDL+ events and are not listed as planner-controlled actions.
+
+5.0000: (start-move rescuebot base corridor)
+7.0000: (start-move rescuebot corridor lab)
+9.0000: (start-move rescuebot lab infirmary)
+11.0000: (start-inspect-victim-room rescuebot patient1 infirmary)
+12.0000: (start-load-patient rescuebot patient1 infirmary)
+13.0000: (start-move-with-patient rescuebot patient1 infirmary lab)
+16.0000: (start-move-with-patient rescuebot patient1 lab corridor)
+19.0000: (start-move-with-patient rescuebot patient1 corridor base)
+22.0000: (start-unload-patient-at-base rescuebot patient1 base)
+
+; Automatic PDDL+ events:
+; finish-move completes normal movement after 2 time units.
+; finish-inspect-victim-room produces victim-detected.
+; finish-load-patient loads the patient onto the robot.
+; finish-move-with-patient completes patient transport after 3 time units.
+; finish-unload-patient-at-base produces rescued and patient-at base.
+; health-degradation continuously decreases victim-health while mission-active and victim-alive are true.
+
+; Planner result:
+; Solution found.
+; Planner: ENHSP via Planning Domains.
+; ENHSP visual timeline shows successful transport rescue.
+; Planner textual output reports only the first action, so the plan above is reconstructed from the validated visual timeline.
