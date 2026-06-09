@@ -1,0 +1,34 @@
+; Plan for problem_definitive_stabilize_then_transport.pddl
+; Definitive rescue strategy: stabilization branch.
+;
+; The robot starts at base.
+; The patient is in infirmary.
+; The problem marks the patient as requiring stabilization.
+; Therefore, after inspection and assessment, the robot must stabilize the patient
+; before loading and transporting them to base.
+;
+; Health degradation is active initially.
+; Stabilization stops health degradation by removing the health-degrading predicate.
+; After stabilization, the patient becomes ready for transport.
+;
+; The visual ENHSP timeline shows a successful stabilize-then-transport rescue.
+; ENHSP textual output reports only the first action, so the sequence below is reconstructed
+; from the validated visual timeline.
+
+3.0000: (start-move rescuebot base corridor)
+5.0000: (start-move rescuebot corridor lab)
+7.0000: (start-move rescuebot lab infirmary)
+9.0000: (start-inspect-victim-room rescuebot patient1 infirmary)
+10.0000: (start-assess-patient rescuebot patient1 infirmary)
+11.0000: (start-stabilize-patient rescuebot patient1 infirmary)
+15.0000: (start-load-patient rescuebot patient1 infirmary)
+16.0000: (start-move-with-patient rescuebot patient1 infirmary lab)
+19.0000: (start-move-with-patient rescuebot patient1 lab corridor)
+22.0000: (start-move-with-patient rescuebot patient1 corridor base)
+25.0000: (start-unload-patient-at-base rescuebot patient1 base)
+
+; Planner result:
+; Solution found.
+; Planner: ENHSP via Planning Domains.
+; Planner found 11 plan(s).
+; The plan includes start-stabilize-patient and reaches rescued patient1 and patient-at patient1 base.

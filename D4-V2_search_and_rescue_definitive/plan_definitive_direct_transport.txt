@@ -1,0 +1,31 @@
+; Plan for problem_definitive_direct_transport.pddl
+; Definitive rescue strategy: direct transport branch.
+;
+; The robot starts at base.
+; The patient is in infirmary.
+; The problem marks the patient as transport-safe, so after inspection and assessment
+; the robot can load the patient directly and transport them to base.
+;
+; Health degradation is active in this problem.
+; The initial health is high enough for the patient to survive until unload at base.
+;
+; The visual ENHSP timeline shows a successful direct-transport rescue.
+; ENHSP textual output reports only the first action, so the sequence below is reconstructed
+; from the validated visual timeline.
+
+3.0000: (start-move rescuebot base corridor)
+6.0000: (start-move rescuebot corridor lab)
+8.0000: (start-move rescuebot lab infirmary)
+10.0000: (start-inspect-victim-room rescuebot patient1 infirmary)
+12.0000: (start-assess-patient rescuebot patient1 infirmary)
+13.0000: (start-load-patient rescuebot patient1 infirmary)
+21.0000: (start-move-with-patient rescuebot patient1 infirmary lab)
+24.0000: (start-move-with-patient rescuebot patient1 lab corridor)
+27.0000: (start-move-with-patient rescuebot patient1 corridor base)
+30.0000: (start-unload-patient-at-base rescuebot patient1 base)
+
+; Planner result:
+; Solution found.
+; Planner: ENHSP via Planning Domains.
+; Planner found 10 plan(s).
+; The plan reaches rescued patient1 and patient-at patient1 base.

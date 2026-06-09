@@ -1,0 +1,25 @@
+; Output for problem_definitive_too_late.pddl
+; Definitive rescue strategy: too-late failure case.
+;
+; This instance activates health degradation and forces a delay.
+; The patient requires stabilization, but the delay makes the rescue process too late.
+;
+; Expected model-level result:
+; the victim should die before the robot can complete stabilization and transport to base.
+;
+; ENHSP returned an empty plan:
+;
+; Plan found:
+; Metric: 0
+; Makespan: 0
+; States evaluated: 254
+; Planner found 1 plan(s).
+;
+; Validation note:
+; The returned empty plan is not semantically valid for this problem.
+; The goal requires rescued patient1 and patient-at patient1 base.
+; These predicates are not true in the initial state.
+;
+; Therefore, this output is documented as an inconsistent/unsupported planner output
+; for the PDDL+ failure instance.
+; The model-level interpretation remains expected failure due to victim-health reaching zero.

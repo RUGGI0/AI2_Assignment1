@@ -1,8 +1,14 @@
+
 (define (problem definitive-stabilize-then-transport)
 
-  ;; Placeholder problem.
-  ;; This instance will test the branch where health is too low for direct transport,
-  ;; so the robot must stabilize the patient before transporting them to base.
+  ;; Stabilize-then-transport instance for the definitive rescue strategy.
+  ;;
+  ;; Purpose:
+  ;; - health degradation is active;
+  ;; - the patient is not considered safe for direct transport;
+  ;; - assessment produces the stabilization branch;
+  ;; - stabilization stops health degradation;
+  ;; - the patient is then loaded, transported to base, and unloaded.
 
   (:domain search-and-rescue-definitive-plus)
 
@@ -14,19 +20,60 @@
 
   (:init
 
-    ;; Temporary placeholder fact.
-    ;; It will be replaced by the real initial state after the definitive domain is implemented.
-    (placeholder)
+    ;; Mission status.
+    (mission-active)
+    (victim-alive)
 
-    ;; Lower health: direct transport should not be selected.
-    ;; The final model should require stabilization before transport.
+    ;; PDDL+ health degradation is active until stabilization completes.
+    (health-degrading)
+
+    ;; No initial delay is required in this success instance.
+    (waited)
+
+    ;; Robot initial status.
+    (available rescuebot)
+    (hands-free rescuebot)
+    (robot-at rescuebot base)
+
+    ;; Safe evacuation point.
+    (safe-base base)
+
+    ;; Known building topology.
+    (connected base corridor)
+    (connected corridor base)
+
+    (connected corridor lab)
+    (connected lab corridor)
+
+    (connected lab infirmary)
+    (connected infirmary lab)
+
+    (connected corridor storage)
+    (connected storage corridor)
+
+    ;; Inspection state.
+    (uninspected infirmary)
+
+    ;; Assessment setup.
+    ;; stabilization-required selects the stabilization branch after assessment.
+    (assessment-pending patient1)
+    (stabilization-required patient1)
+
+    ;; Real patient/victim location.
+    (victim-at patient1 infirmary)
+    (patient-at patient1 infirmary)
+
+    ;; Numeric fluents.
+    ;; This is low enough to justify stabilization, but high enough to survive until stabilization completes.
     (= (victim-health) 18)
+    (= (activity-progress) 0)
   )
 
   (:goal
-
-    ;; Temporary placeholder goal.
-    ;; It will be replaced by the real transport-to-base rescue goal.
-    (placeholder)
+    (and
+      (stabilized patient1)
+      (rescued patient1)
+      (patient-at patient1 base)
+    )
   )
 )
