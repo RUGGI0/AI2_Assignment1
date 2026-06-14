@@ -66,9 +66,9 @@
     (patient-at patient1 infirmary)
 
     ;; Numeric fluents.
-    ;; With health 35, the patient should remain above the direct-transport threshold
+    ;; With health 60, the patient should remain above the direct-transport threshold
     ;; when assessment completes, even with the small idle time observed in ENHSP timelines.
-    (= (victim-health) 35)
+    (= (victim-health) 60)
     (= (activity-progress) 0)
   )
 
