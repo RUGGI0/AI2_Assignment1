@@ -13,6 +13,5 @@
       "syntax": "$(planner) -o $(domain) -f $(problem)"
     }
   ],
-
   "pddl.selectedPlanner": "ENHSP local Docker"
 }
