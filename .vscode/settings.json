@@ -1,0 +1,18 @@
+{
+  // Workspace settings for the VS Code PDDL extension.
+  // This registers ENHSP as a local executable planner.
+  // You can still run it through:
+  // right click on a .pddl problem file -> PDDL: Run the planner and visualize the plan.
+
+  "pddl.planners": [
+    {
+      "title": "ENHSP local Docker",
+      "kind": "EXECUTABLE",
+      "canConfigure": true,
+      "path": "/home/ruggio/Documents/UniGe/AI2/planners/enhsp/enhsp-vscode.sh",
+      "syntax": "$(planner) -o $(domain) -f $(problem)"
+    }
+  ],
+
+  "pddl.selectedPlanner": "ENHSP local Docker"
+}
