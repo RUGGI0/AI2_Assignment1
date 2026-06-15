@@ -1,15 +1,13 @@
 (define (problem definitive-direct-transport)
 
-  ;; Direct transport instance for the definitive rescue strategy.
+  ;; Autonomous direct-transport instance.
   ;;
-  ;; Purpose:
-  ;; - the robot starts at base;
-  ;; - the patient is located in infirmary;
-  ;; - the robot must inspect the victim room before detection;
-  ;; - after detection, the robot assesses the patient;
-  ;; - the symbolic assessment result says that transport is safe;
-  ;; - health degradation remains active, but health is high enough for success;
-  ;; - the robot loads the patient, transports them to base, and unloads them.
+  ;; The patient health is high enough that, when the timed assessment finishes,
+  ;; victim-health is still above the numeric transport threshold.
+  ;; Therefore the domain should autonomously select the direct-transport branch.
+  ;;
+  ;; No transport-safe predicate is provided here.
+  ;; The branch must be selected only by the numeric condition in finish-assess-direct-transport.
 
   (:domain search-and-rescue-definitive-plus)
 
@@ -25,10 +23,11 @@
     (mission-active)
     (victim-alive)
 
-    ;; PDDL+ health degradation is active in the definitive version.
+    ;; Health degradation is active from the beginning.
+    ;; This keeps the PDDL+ time-dependent behaviour meaningful.
     (health-degrading)
 
-    ;; No initial delay is required in the direct transport instance.
+    ;; This successful instance has no forced initial delay.
     (waited)
 
     ;; Robot initial status.
@@ -54,26 +53,33 @@
     (connected storage corridor)
 
     ;; Inspection state.
+    ;; The robot must inspect the victim room before detection is produced.
     (uninspected infirmary)
 
-    ;; Assessment setup.
-    ;; transport-safe selects the direct transport branch after assessment.
+    ;; Assessment is pending, but no symbolic branch outcome is given.
+    ;; The domain must decide using victim-health at assessment completion.
     (assessment-pending patient1)
-    (transport-safe patient1)
 
-    ;; Real patient/victim location.
-    ;; The robot cannot load the patient until inspection produces victim-detected.
+    ;; Real patient/victim location in the planning model.
+    ;; Later actions still require victim-detected, so this fact does not by itself rescue the patient.
     (victim-at patient1 infirmary)
     (patient-at patient1 infirmary)
 
     ;; Numeric fluents.
-    ;; Health is high enough for the direct transport plan to complete before death.
-    (= (victim-health) 35)
+    ;; With health 60, the patient should remain above the direct-transport threshold
+    ;; when assessment completes, even with the small idle time observed in ENHSP timelines.
+    (= (victim-health) 60)
     (= (activity-progress) 0)
+
+    ;; Mission clock starts at zero.
+    (= (mission-time) 0)
+
+    ;; Mission deadline prevents artificial waiting.
+    (= (mission-deadline) 35)
+
   )
 
-  ;; Goal:
-  ;; Rescue means the patient has been physically transported and unloaded at base.
+  ;; Rescue means that the patient has been transported and unloaded at base.
   (:goal
     (and
       (rescued patient1)

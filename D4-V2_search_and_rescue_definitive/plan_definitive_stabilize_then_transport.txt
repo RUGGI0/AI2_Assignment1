@@ -1,34 +1,58 @@
-; Plan for problem_definitive_stabilize_then_transport.pddl
-; Definitive rescue strategy: stabilization branch.
-;
-; The robot starts at base.
-; The patient is in infirmary.
-; The problem marks the patient as requiring stabilization.
-; Therefore, after inspection and assessment, the robot must stabilize the patient
-; before loading and transporting them to base.
-;
-; Health degradation is active initially.
-; Stabilization stops health degradation by removing the health-degrading predicate.
-; After stabilization, the patient becomes ready for transport.
-;
-; The visual ENHSP timeline shows a successful stabilize-then-transport rescue.
-; ENHSP textual output reports only the first action, so the sequence below is reconstructed
-; from the validated visual timeline.
+# Definitive stabilize-then-transport plan
+# Validated with ENHSP local Docker.
+# The patient health is low, so the planner stabilizes before transport.
 
-3.0000: (start-move rescuebot base corridor)
-5.0000: (start-move rescuebot corridor lab)
-7.0000: (start-move rescuebot lab infirmary)
-9.0000: (start-inspect-victim-room rescuebot patient1 infirmary)
-10.0000: (start-assess-patient rescuebot patient1 infirmary)
-11.0000: (start-stabilize-patient rescuebot patient1 infirmary)
-15.0000: (start-load-patient rescuebot patient1 infirmary)
-16.0000: (start-move-with-patient rescuebot patient1 infirmary lab)
-19.0000: (start-move-with-patient rescuebot patient1 lab corridor)
-22.0000: (start-move-with-patient rescuebot patient1 corridor base)
-25.0000: (start-unload-patient-at-base rescuebot patient1 base)
+Domain parsed
+Problem parsed
+Grounding..
+Grounding Time: 35
+Aibr Preprocessing
+|F|:47
+|X|:3
+Heuristic Problem Creation
+Aibr Preprocessing
+|A|:22
+|P|:3
+|E|:24
+Delta time heuristic model:1.0
+Delta time planning model:1.0
+Delta time search-execution model:1.0
+Delta time validation model:1
+H1 Setup Time (msec): 7
+ g(n)= 6.0 h(n)=219.0
+ g(n)= 16.0 h(n)=156.0
+ g(n)= 19.0 h(n)=93.0
+ g(n)= 21.0 h(n)=66.0
+ g(n)= 21.0 h(n)=51.0
+ g(n)= 21.0 h(n)=36.0
+ g(n)= 39.0 h(n)=24.0
+ g(n)= 41.0 h(n)=18.0
+ g(n)= 41.0 h(n)=12.0
+ g(n)= 39.0 h(n)=6.0
+ g(n)= 40.0 h(n)=4.0
+Extracting plan with execution delta: 1.0
+Problem Solved
 
-; Planner result:
-; Solution found.
-; Planner: ENHSP via Planning Domains.
-; Planner found 11 plan(s).
-; The plan includes start-stabilize-patient and reaches rescued patient1 and patient-at patient1 base.
+Found Plan:
+3.0: (start-move rescuebot base corridor)
+5.0: (start-move rescuebot corridor lab)
+7.0: (start-move rescuebot lab infirmary)
+9.0: (start-inspect-victim-room rescuebot patient1 infirmary)
+10.0: (start-assess-patient rescuebot patient1 infirmary)
+11.0: (start-stabilize-patient rescuebot patient1 infirmary)
+15.0: (start-load-patient rescuebot patient1 infirmary)
+20.0: (start-move-with-patient rescuebot patient1 infirmary lab)
+23.0: (start-move-with-patient rescuebot patient1 lab corridor)
+26.0: (start-move-with-patient rescuebot patient1 corridor base)
+29.0: (start-unload-patient-at-base rescuebot patient1 base)
+
+Plan-Length:52
+Elapsed Time: 30.0
+Metric (Search):41.0
+Planning Time (msec): 68
+Heuristic Time (msec): 38
+Search Time (msec): 65
+Expanded Nodes:249
+States Evaluated:417
+Number of Dead-Ends detected:34
+Number of Duplicates detected:39

@@ -1,25 +1,36 @@
-; Output for problem_definitive_too_late.pddl
-; Definitive rescue strategy: too-late failure case.
-;
-; This instance activates health degradation and forces a delay.
-; The patient requires stabilization, but the delay makes the rescue process too late.
-;
-; Expected model-level result:
-; the victim should die before the robot can complete stabilization and transport to base.
-;
-; ENHSP returned an empty plan:
-;
-; Plan found:
-; Metric: 0
-; Makespan: 0
-; States evaluated: 254
-; Planner found 1 plan(s).
-;
-; Validation note:
-; The returned empty plan is not semantically valid for this problem.
-; The goal requires rescued patient1 and patient-at patient1 base.
-; These predicates are not true in the initial state.
-;
-; Therefore, this output is documented as an inconsistent/unsupported planner output
-; for the PDDL+ failure instance.
-; The model-level interpretation remains expected failure due to victim-health reaching zero.
+# Definitive too-late failure case
+# Validated with ENHSP local Docker.
+# The forced delay makes the rescue problem unsolvable.
+
+Domain parsed
+Problem parsed
+Grounding..
+Grounding Time: 29
+Aibr Preprocessing
+|F|:54
+|X|:3
+Heuristic Problem Creation
+Aibr Preprocessing
+|A|:27
+|P|:3
+|E|:29
+Delta time heuristic model:1.0
+Delta time planning model:1.0
+Delta time search-execution model:1.0
+Delta time validation model:1
+H1 Setup Time (msec): 12
+ g(n)= 13.0 h(n)=494.0
+ g(n)= 14.0 h(n)=246.0
+ g(n)= 19.0 h(n)=192.0
+ g(n)= 20.0 h(n)=138.0
+ g(n)= 21.0 h(n)=84.0
+ g(n)= 22.0 h(n)=60.0
+Problem unsolvable
+Metric (Search):-1.0
+Planning Time (msec): 92
+Heuristic Time (msec): 52
+Search Time (msec): 0
+Expanded Nodes:254
+States Evaluated:254
+Number of Dead-Ends detected:36
+Number of Duplicates detected:27

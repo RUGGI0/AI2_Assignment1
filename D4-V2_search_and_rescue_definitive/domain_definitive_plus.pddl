@@ -1,20 +1,27 @@
 (define (domain search-and-rescue-definitive-plus)
 
-  ;; Definitive PDDL+ rescue strategy with symbolic health assessment.
+  ;; Definitive autonomous PDDL+ rescue strategy.
   ;;
-  ;; This domain keeps the important PDDL+ part:
-  ;; - victim-health decreases continuously while health-degrading is true;
-  ;; - victim-dies is an automatic event triggered when health reaches zero;
-  ;; - stabilization stops health degradation;
-  ;; - rescue succeeds only when the patient is unloaded at the safe base.
+  ;; This experimental domain combines the two rescue meanings developed during the assignment:
+  ;; - rescue as helping the victim after detection;
+  ;; - rescue as transporting the patient back to a safe base.
   ;;
-  ;; The assessment result is modelled symbolically through problem predicates:
-  ;; - (transport-safe ?p) selects the direct-transport branch;
-  ;; - (stabilization-required ?p) selects the stabilization branch.
+  ;; Final strategy:
+  ;; 1. The robot searches the building by moving through a known topology.
+  ;; 2. The robot explicitly inspects rooms.
+  ;; 3. Inspection of the correct room produces victim detection.
+  ;; 4. After detection, the robot assesses the patient's health.
+  ;; 5. If health is sufficient, the patient becomes ready for direct transport.
+  ;; 6. If health is too low, the robot must stabilize the patient first.
+  ;; 7. Stabilization stops health degradation.
+  ;; 8. The robot loads the patient, transports them to base, and unloads them there.
   ;;
-  ;; This mirrors the assignment abstraction used for unknown victim location:
-  ;; the model explicitly represents sensing/assessment outcomes with predicates,
-  ;; while continuous health degradation remains numeric and time-dependent.
+        ;; Autonomous-assessment note:
+  ;; In the symbolic definitive version, the assessment outcome was encoded in the problem
+  ;; with transport-safe or stabilization-required predicates.
+  ;; In this autonomous version, those symbolic outcome predicates are removed.
+  ;; The finish-assess-* events select the branch using the current numeric value of victim-health.
+  ;; This is conceptually closer to PDDL+, but planner support may be less stable.
 
   (:requirements
     :strips
@@ -34,38 +41,30 @@
     ;; Robot location.
     (robot-at ?r - robot ?loc - room)
 
-    ;; Patient physical location when not loaded.
+    ;; Patient physical location when not carried.
     (patient-at ?p - patient ?loc - room)
 
     ;; Known building topology.
-    ;; Connections are explicitly declared in both directions in the problem file.
+    ;; PDDL does not assume symmetry, so both directions must be listed in each problem.
     (connected ?from - room ?to - room)
 
-    ;; Room inspection state.
+    ;; Inspection state.
     (inspected ?loc - room)
     (uninspected ?loc - room)
     (empty-room ?loc - room)
 
-    ;; Real patient/victim location.
-    ;; The planner cannot rescue directly from this fact: detection is still required.
+    ;; Real patient location in the model.
+    ;; The robot cannot rescue from this alone: detection is still required.
     (victim-at ?p - patient ?loc - room)
 
-    ;; Produced by inspecting the room containing the victim.
+    ;; Produced by inspecting the correct room.
     (victim-detected ?p - patient ?loc - room)
 
     ;; Health assessment state.
-    ;; assessment-pending is initially true and is removed after assessment.
+    ;; assessment-pending is initially true and is removed after the assessment result.
     (assessment-pending ?p - patient)
-    (assessing ?r - robot ?p - patient ?loc - room)
     (assessed ?p - patient)
-
-    ;; Symbolic assessment outcomes.
-    ;; These are set in each problem instance to select the intended branch.
-    (transport-safe ?p - patient)
-    (stabilization-required ?p - patient)
-
-    ;; Branch results.
-    ;; ready-for-transport can be produced either by direct assessment or stabilization.
+    (transportable ?p - patient)
     (needs-stabilization ?p - patient)
     (stabilized ?p - patient)
     (ready-for-transport ?p - patient)
@@ -79,7 +78,7 @@
     (carrying ?r - robot ?p - patient)
     (patient-loaded ?p - patient)
 
-    ;; Safe base.
+    ;; Safe evacuation point.
     (safe-base ?loc - room)
 
     ;; Mission and patient status.
@@ -88,19 +87,21 @@
     (victim-dead)
 
     ;; Health degradation control.
-    ;; While this predicate is true, the health-degradation process is active.
-    ;; Stabilization removes it.
+    ;; The health-degradation process runs only while this predicate is true.
+    ;; Stabilization removes it, representing blocked health loss.
     (health-degrading)
 
-    ;; Optional delay control used in too-late scenarios.
-    ;; Normal problems start with waited already true.
-    (delay-required)
+    ;; Delay control.
+    ;; Normal successful instances start with waited already true.
+    ;; Too-late instances start with delay-required and must wait first.
     (waited)
+    (delay-required)
 
     ;; Timed activity markers.
     (moving ?r - robot ?from - room ?to - room)
     (inspecting-empty ?r - robot ?loc - room)
     (inspecting-victim ?r - robot ?p - patient ?loc - room)
+    (assessing ?r - robot ?p - patient ?loc - room)
     (stabilizing ?r - robot ?p - patient ?loc - room)
     (loading ?r - robot ?p - patient ?loc - room)
     (transporting ?r - robot ?p - patient ?from - room ?to - room)
@@ -108,7 +109,7 @@
     (waiting ?r - robot ?loc - room)
 
     ;; Final goal predicate.
-    ;; In this definitive version, rescued means safely unloaded at base.
+    ;; In the definitive version, rescued means safely unloaded at base.
     (rescued ?p - patient)
   )
 
@@ -117,15 +118,23 @@
     ;; Patient health decreases continuously while health-degrading is true.
     (victim-health)
 
-    ;; Shared progress counter for the current robot activity.
-    ;; One global progress fluent is sufficient because the domain uses one robot.
+    ;; Global mission clock.
+    ;; It prevents the planner from waiting until the health threshold changes.
+    (mission-time)
+
+    ;; Problem-specific mission deadline.
+    ;; If this value is reached before rescue, the mission fails.
+    (mission-deadline)
+
+    ;; Shared progress counter for the current timed activity.
+    ;; This model uses one robot, so one global counter is sufficient.
     (activity-progress)
   )
 
   ;; ---------------------------------------------------------------------------
   ;; START MOVE
   ;; ---------------------------------------------------------------------------
-  ;; Normal movement without carrying the patient.
+  ;; Starts normal movement while the robot is not carrying the patient.
   (:action start-move
     :parameters (?r - robot ?from - room ?to - room)
     :precondition (and
@@ -150,7 +159,7 @@
   ;; ---------------------------------------------------------------------------
   ;; START INSPECT EMPTY ROOM
   ;; ---------------------------------------------------------------------------
-  ;; Inspection of a known empty room.
+  ;; Starts inspection of a room known not to contain the patient.
   (:action start-inspect-empty-room
     :parameters (?r - robot ?loc - room)
     :precondition (and
@@ -175,8 +184,8 @@
   ;; ---------------------------------------------------------------------------
   ;; START INSPECT VICTIM ROOM
   ;; ---------------------------------------------------------------------------
-  ;; Inspection of the room containing the victim.
-  ;; Detection is produced only by the finish event.
+  ;; Starts inspection of the room containing the patient.
+  ;; Detection is produced later by an automatic finish event.
   (:action start-inspect-victim-room
     :parameters (?r - robot ?p - patient ?loc - room)
     :precondition (and
@@ -202,8 +211,9 @@
   ;; ---------------------------------------------------------------------------
   ;; START ASSESS PATIENT
   ;; ---------------------------------------------------------------------------
-  ;; Medical assessment is explicit and consumes time.
-  ;; Its outcome is represented by symbolic predicates in the problem file.
+  ;; Starts a timed health assessment after detection.
+  ;; The finish-assess-* events decide whether direct transport is allowed
+  ;; or stabilization is required, based on victim-health at assessment completion.
   (:action start-assess-patient
     :parameters (?r - robot ?p - patient ?loc - room)
     :precondition (and
@@ -229,7 +239,7 @@
   ;; ---------------------------------------------------------------------------
   ;; START STABILIZE PATIENT
   ;; ---------------------------------------------------------------------------
-  ;; Stabilization is required when assessment produced needs-stabilization.
+  ;; Starts stabilization when assessment determined that direct transport is unsafe.
   (:action start-stabilize-patient
     :parameters (?r - robot ?p - patient ?loc - room)
     :precondition (and
@@ -254,8 +264,8 @@
   ;; ---------------------------------------------------------------------------
   ;; START LOAD PATIENT
   ;; ---------------------------------------------------------------------------
-  ;; Loading requires ready-for-transport.
-  ;; This can be produced by either direct assessment or stabilization.
+  ;; Loading is possible only after the patient is ready for transport.
+  ;; ready-for-transport can be produced either by direct assessment or by stabilization.
   (:action start-load-patient
     :parameters (?r - robot ?p - patient ?loc - room)
     :precondition (and
@@ -281,7 +291,7 @@
   ;; ---------------------------------------------------------------------------
   ;; START MOVE WITH PATIENT
   ;; ---------------------------------------------------------------------------
-  ;; Movement while carrying the patient is slower than normal movement.
+  ;; Transport movement is slower than normal movement.
   (:action start-move-with-patient
     :parameters (?r - robot ?p - patient ?from - room ?to - room)
     :precondition (and
@@ -371,7 +381,23 @@
   ;; HEALTH DEGRADATION PROCESS
   ;; ---------------------------------------------------------------------------
   ;; Health decreases continuously until stabilization removes health-degrading.
-  (:process health-degradation
+    ;; ---------------------------------------------------------------------------
+  ;; MISSION CLOCK PROCESS
+  ;; ---------------------------------------------------------------------------
+  ;; The mission clock increases while the mission is active.
+  ;; This makes artificial waiting dangerous for the planner.
+  (:process mission-clock
+    :parameters ()
+    :precondition (and
+      (mission-active)
+      (victim-alive)
+    )
+    :effect (and
+      (increase (mission-time) (* #t 1))
+    )
+  )
+
+(:process health-degradation
     :parameters ()
     :precondition (and
       (mission-active)
@@ -455,21 +481,22 @@
   ;; FINISH ASSESSMENT: DIRECT TRANSPORT
   ;; ---------------------------------------------------------------------------
   ;; Assessment duration = 1 time unit.
-  ;; Direct transport is selected by the symbolic predicate transport-safe.
+  ;; If health is still at least 20, direct transport is considered safe.
   (:event finish-assess-direct-transport
     :parameters (?r - robot ?p - patient ?loc - room)
     :precondition (and
       (mission-active)
       (victim-alive)
       (assessing ?r ?p ?loc)
-      (transport-safe ?p)
       (>= (activity-progress) 1)
+      (>= (victim-health) 20)
     )
     :effect (and
       (not (assessing ?r ?p ?loc))
       (not (busy ?r))
       (available ?r)
       (assessed ?p)
+      (transportable ?p)
       (ready-for-transport ?p)
       (not (assessment-pending ?p))
       (assign (activity-progress) 0)
@@ -480,15 +507,16 @@
   ;; FINISH ASSESSMENT: STABILIZATION REQUIRED
   ;; ---------------------------------------------------------------------------
   ;; Assessment duration = 1 time unit.
-  ;; Stabilization is selected by the symbolic predicate stabilization-required.
+  ;; If health is below 20, stabilization is required before transport.
   (:event finish-assess-needs-stabilization
     :parameters (?r - robot ?p - patient ?loc - room)
     :precondition (and
       (mission-active)
       (victim-alive)
       (assessing ?r ?p ?loc)
-      (stabilization-required ?p)
       (>= (activity-progress) 1)
+      (< (victim-health) 20)
+      (> (victim-health) 0)
     )
     :effect (and
       (not (assessing ?r ?p ?loc))
@@ -512,7 +540,6 @@
       (mission-active)
       (victim-alive)
       (stabilizing ?r ?p ?loc)
-      (> (victim-health) 0)
       (>= (activity-progress) 4)
     )
     :effect (and
@@ -537,7 +564,6 @@
       (mission-active)
       (victim-alive)
       (loading ?r ?p ?loc)
-      (> (victim-health) 0)
       (>= (activity-progress) 1)
     )
     :effect (and
@@ -562,7 +588,6 @@
       (mission-active)
       (victim-alive)
       (transporting ?r ?p ?from ?to)
-      (> (victim-health) 0)
       (>= (activity-progress) 3)
     )
     :effect (and
@@ -575,7 +600,7 @@
   )
 
   ;; ---------------------------------------------------------------------------
-  ;; FINISH UNLOAD PATIENT AT BASE
+  ;; FINISH UNLOAD PATIENT AT BASE EVENT
   ;; ---------------------------------------------------------------------------
   ;; Unloading duration = 1 time unit.
   ;; This event produces the final rescued predicate.
@@ -585,7 +610,6 @@
       (mission-active)
       (victim-alive)
       (unloading ?r ?p ?base)
-      (> (victim-health) 0)
       (>= (activity-progress) 1)
     )
     :effect (and
@@ -629,7 +653,26 @@
   ;; VICTIM DIES EVENT
   ;; ---------------------------------------------------------------------------
   ;; If health reaches zero while degradation is active, the mission fails.
-  (:event victim-dies
+    ;; ---------------------------------------------------------------------------
+  ;; MISSION TIMEOUT EVENT
+  ;; ---------------------------------------------------------------------------
+  ;; If the planner waits too long, the mission fails.
+  ;; This prevents waiting just to force a different health-based branch.
+  (:event mission-timeout
+    :parameters ()
+    :precondition (and
+      (mission-active)
+      (victim-alive)
+      (>= (mission-time) (mission-deadline))
+    )
+    :effect (and
+      (victim-dead)
+      (not (victim-alive))
+      (not (mission-active))
+    )
+  )
+
+(:event victim-dies
     :parameters ()
     :precondition (and
       (mission-active)

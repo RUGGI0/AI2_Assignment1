@@ -1,12 +1,13 @@
 (define (problem definitive-too-late)
 
-  ;; Too-late instance for the definitive rescue strategy.
+  ;; Autonomous too-late failure instance.
   ;;
-  ;; Purpose:
-  ;; - health degradation is active;
-  ;; - an initial delay is forced by delay-required;
-  ;; - after the wait, the patient should not survive long enough for rescue;
-  ;; - the expected model-level result is failure before stabilization/transport can succeed.
+  ;; This instance forces an initial wait while health degradation remains active.
+  ;; The patient starts with low health, so the victim should die before the robot
+  ;; can complete assessment, stabilization, transport, and unload at base.
+  ;;
+  ;; As with the other autonomous instances, no symbolic branch predicate is provided.
+  ;; The model relies on victim-health and the automatic victim-dies event.
 
   (:domain search-and-rescue-definitive-plus)
 
@@ -22,11 +23,10 @@
     (mission-active)
     (victim-alive)
 
-    ;; PDDL+ health degradation is active.
+    ;; Health degradation is active from the beginning.
     (health-degrading)
 
-    ;; The too-late instance starts with delay-required, not waited.
-    ;; Therefore start-wait must happen before any operational action.
+    ;; The robot must wait first in this failure instance.
     (delay-required)
 
     ;; Robot initial status.
@@ -50,22 +50,25 @@
     (connected corridor storage)
     (connected storage corridor)
 
-    ;; Inspection state.
+    ;; Inspection and assessment setup.
     (uninspected infirmary)
-
-    ;; Assessment setup.
-    ;; Even with stabilization required, the initial delay should make the rescue too late.
     (assessment-pending patient1)
-    (stabilization-required patient1)
 
-    ;; Real patient/victim location.
+    ;; Real patient/victim location in the planning model.
     (victim-at patient1 infirmary)
     (patient-at patient1 infirmary)
 
     ;; Numeric fluents.
-    ;; Health is too low to survive the forced waiting period plus rescue chain.
+    ;; With health 18 and a forced wait duration of 10, the rescue should be too late.
     (= (victim-health) 18)
     (= (activity-progress) 0)
+
+    ;; Mission clock starts at zero.
+    (= (mission-time) 0)
+
+    ;; Mission deadline prevents artificial waiting.
+    (= (mission-deadline) 35)
+
   )
 
   (:goal

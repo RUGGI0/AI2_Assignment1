@@ -1,31 +1,56 @@
-; Plan for problem_definitive_direct_transport.pddl
-; Definitive rescue strategy: direct transport branch.
-;
-; The robot starts at base.
-; The patient is in infirmary.
-; The problem marks the patient as transport-safe, so after inspection and assessment
-; the robot can load the patient directly and transport them to base.
-;
-; Health degradation is active in this problem.
-; The initial health is high enough for the patient to survive until unload at base.
-;
-; The visual ENHSP timeline shows a successful direct-transport rescue.
-; ENHSP textual output reports only the first action, so the sequence below is reconstructed
-; from the validated visual timeline.
+# Definitive direct transport plan
+# Validated with ENHSP local Docker.
+# The patient health is high enough, so the planner chooses direct transport without stabilization.
 
-3.0000: (start-move rescuebot base corridor)
-6.0000: (start-move rescuebot corridor lab)
-8.0000: (start-move rescuebot lab infirmary)
-10.0000: (start-inspect-victim-room rescuebot patient1 infirmary)
-12.0000: (start-assess-patient rescuebot patient1 infirmary)
-13.0000: (start-load-patient rescuebot patient1 infirmary)
-21.0000: (start-move-with-patient rescuebot patient1 infirmary lab)
-24.0000: (start-move-with-patient rescuebot patient1 lab corridor)
-27.0000: (start-move-with-patient rescuebot patient1 corridor base)
-30.0000: (start-unload-patient-at-base rescuebot patient1 base)
+Domain parsed
+Problem parsed
+Grounding..
+Grounding Time: 27
+Aibr Preprocessing
+|F|:48
+|X|:3
+Heuristic Problem Creation
+Aibr Preprocessing
+|A|:22
+|P|:3
+|E|:25
+Delta time heuristic model:1.0
+Delta time planning model:1.0
+Delta time search-execution model:1.0
+Delta time validation model:1
+H1 Setup Time (msec): 7
+ g(n)= 24.0 h(n)=156.0
+ g(n)= 31.0 h(n)=114.0
+ g(n)= 34.0 h(n)=72.0
+ g(n)= 36.0 h(n)=48.0
+ g(n)= 38.0 h(n)=36.0
+ g(n)= 40.0 h(n)=24.0
+ g(n)= 41.0 h(n)=18.0
+ g(n)= 38.0 h(n)=12.0
+ g(n)= 42.0 h(n)=6.0
+ g(n)= 43.0 h(n)=4.0
+Extracting plan with execution delta: 1.0
+Problem Solved
 
-; Planner result:
-; Solution found.
-; Planner: ENHSP via Planning Domains.
-; Planner found 10 plan(s).
-; The plan reaches rescued patient1 and patient-at patient1 base.
+Found Plan:
+15.0: (start-move rescuebot base corridor)
+17.0: (start-move rescuebot corridor lab)
+19.0: (start-move rescuebot lab infirmary)
+21.0: (start-inspect-victim-room rescuebot patient1 infirmary)
+22.0: (start-assess-patient rescuebot patient1 infirmary)
+23.0: (start-load-patient rescuebot patient1 infirmary)
+24.0: (start-move-with-patient rescuebot patient1 infirmary lab)
+27.0: (start-move-with-patient rescuebot patient1 lab corridor)
+30.0: (start-move-with-patient rescuebot patient1 corridor base)
+33.0: (start-unload-patient-at-base rescuebot patient1 base)
+
+Plan-Length:54
+Elapsed Time: 34.0
+Metric (Search):44.0
+Planning Time (msec): 92
+Heuristic Time (msec): 52
+Search Time (msec): 90
+Expanded Nodes:356
+States Evaluated:510
+Number of Dead-Ends detected:58
+Number of Duplicates detected:66

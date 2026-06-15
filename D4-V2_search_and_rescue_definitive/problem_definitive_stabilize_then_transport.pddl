@@ -1,14 +1,13 @@
-
 (define (problem definitive-stabilize-then-transport)
 
-  ;; Stabilize-then-transport instance for the definitive rescue strategy.
+  ;; Autonomous stabilize-then-transport instance.
   ;;
-  ;; Purpose:
-  ;; - health degradation is active;
-  ;; - the patient is not considered safe for direct transport;
-  ;; - assessment produces the stabilization branch;
-  ;; - stabilization stops health degradation;
-  ;; - the patient is then loaded, transported to base, and unloaded.
+  ;; The patient health is low enough that, when the timed assessment finishes,
+  ;; victim-health should be below the numeric direct-transport threshold but still above zero.
+  ;; Therefore the domain should autonomously select the stabilization branch.
+  ;;
+  ;; No stabilization-required predicate is provided here.
+  ;; The branch must be selected only by the numeric condition in finish-assess-needs-stabilization.
 
   (:domain search-and-rescue-definitive-plus)
 
@@ -24,10 +23,10 @@
     (mission-active)
     (victim-alive)
 
-    ;; PDDL+ health degradation is active until stabilization completes.
+    ;; Health degradation is active from the beginning.
     (health-degrading)
 
-    ;; No initial delay is required in this success instance.
+    ;; This successful instance has no forced initial delay.
     (waited)
 
     ;; Robot initial status.
@@ -51,22 +50,26 @@
     (connected corridor storage)
     (connected storage corridor)
 
-    ;; Inspection state.
+    ;; Inspection and assessment setup.
     (uninspected infirmary)
-
-    ;; Assessment setup.
-    ;; stabilization-required selects the stabilization branch after assessment.
     (assessment-pending patient1)
-    (stabilization-required patient1)
 
-    ;; Real patient/victim location.
+    ;; Real patient/victim location in the planning model.
     (victim-at patient1 infirmary)
     (patient-at patient1 infirmary)
 
     ;; Numeric fluents.
-    ;; This is low enough to justify stabilization, but high enough to survive until stabilization completes.
+    ;; With health 18, the patient should be below the direct-transport threshold
+    ;; when assessment completes, so stabilization should be required.
     (= (victim-health) 18)
     (= (activity-progress) 0)
+
+    ;; Mission clock starts at zero.
+    (= (mission-time) 0)
+
+    ;; Mission deadline prevents artificial waiting.
+    (= (mission-deadline) 35)
+
   )
 
   (:goal
