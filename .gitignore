@@ -1,22 +1,47 @@
-# Local Obsidian dashboard
+# -------------------------------------------------------------------
+# Editor / IDE local configuration
+# -------------------------------------------------------------------
+.vscode/
+.idea/
+
+# -------------------------------------------------------------------
+# Obsidian / local dashboard files
+# -------------------------------------------------------------------
 Dashboard.md
+.obsidian/
 
-# Obsidian local workspace/cache
-.obsidian/workspace.json
-.obsidian/workspace-mobile.json
-.obsidian/cache/
+# -------------------------------------------------------------------
+# Local backups and working copies
+# -------------------------------------------------------------------
+_assignment_backups/
+*_backup_*/
+_AI2_Assignment_working_backup_*/
 
-# System files
-.DS_Store
-Thumbs.db
+# -------------------------------------------------------------------
+# Local planner installations and build folders
+# -------------------------------------------------------------------
+planners/
+ENHSP-Public/
+enhsp/
+enhsp-*/
+target/
+build/
+dist/
 
-# Python/cache files
+# -------------------------------------------------------------------
+# Temporary scripts and logs used during development
+# -------------------------------------------------------------------
+phase8_finalize_packaging.sh
+finalize_definitive_autonomous*.sh
+*.log
+*.tmp
+*.bak
+*.old
+
+# -------------------------------------------------------------------
+# Python/cache/system noise
+# -------------------------------------------------------------------
 __pycache__/
 *.pyc
-
-# Planner temporary/generated files
-*.sas
-output.sas
-sas_plan
-*.tmp
-*.log
+.DS_Store
+Thumbs.db
