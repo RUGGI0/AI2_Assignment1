@@ -35,7 +35,7 @@ The final repository therefore keeps the required core model and two additional 
 | Transport variant | `codes/D4-V2_search_and_rescue_variant/` | Optional interpretation. Rescue means loading the victim, transporting the patient to base, and unloading there. |
 | Definitive model | `codes/D4-V2_search_and_rescue_definitive/` | Final extended version. The robot assesses health and autonomously chooses direct transport, stabilization, or failure. |
 
-The version to check first is:
+The most "complete" version is:
 
 ```text
 codes/D4-V2_search_and_rescue_definitive/
@@ -59,7 +59,6 @@ It is the most complete model because it combines exploration, detection, health
 | [8. Notes and Discussion Files](#8-notes-and-discussion-files) | Where the modelling rationale is documented |
 | [9. Planner and Validation Notes](#9-planner-and-validation-notes) | Planner behaviour and expected outcomes |
 | [10. What Is Extra Compared to the Assignment](#10-what-is-extra-compared-to-the-assignment) | Extensions beyond the minimum requirements |
-| [11. Final Reading Order](#11-final-reading-order) | Recommended review sequence |
 
 ---
 
@@ -82,7 +81,7 @@ The main folder to review first is:
 code codes/D4-V2_search_and_rescue_definitive
 ```
 
-The core assignment folder is still included and should be considered the minimum required deliverable:
+The core assignment folder is still included and should be considered the minimum required:
 
 ```bash
 # Open the official Q1/Q2 assignment solution.
@@ -229,7 +228,7 @@ Folder:
 codes/D4-V2_search_and_rescue/
 ```
 
-This folder contains the required Q1 and Q2 deliverable.
+This folder contains the required Q1 and Q2.
 
 ## 5.1 Q1 — Basic PDDL
 
@@ -416,11 +415,11 @@ The validated setup used during the project was **ENHSP local Docker** for PDDL+
 | Q1 Basic PDDL | Valid plans saved for known-location and exploration instances |
 | Q2 PDDL+ fast rescue | Valid successful output documented |
 | Q2 PDDL+ delayed rescue | Discussed as a model-level failure when delay exceeds available health |
-| Variant fast case | Documented as successful |
+| Variant fast case | Valid successful output documented |
 | Variant delayed case | Kept as documented failure/unsupported-output case |
 | Definitive direct transport | Valid plan; direct transport selected |
 | Definitive stabilize then transport | Valid plan; stabilization selected |
-| Definitive too late | Correctly unsolvable |
+| Definitive too late | Kept as documented failure/unsupported-output case |
 
 ## 9.1 Planner-output caveat
 
@@ -454,31 +453,3 @@ This repository includes additional material.
 | Multiple READMEs | To make each version understandable independently |
 
 These elements are intentionally kept in the repository because they show the modelling evolution from the official assignment to a richer PDDL+ rescue domain.
-
----
-
-# 11. Final Reading Order
-
-Recommended review order:
-
-| Step | Read/check | Reason |
-|---|---|---|
-| 1 | This root `README.md` | Understand the repository and the three-version structure |
-| 2 | `codes/D4-V2_search_and_rescue/` | Check the required Q1/Q2 assignment deliverable |
-| 3 | `codes/D4-V2_search_and_rescue/notes/` | Check the official modelling discussion |
-| 4 | `codes/D4-V2_search_and_rescue_variant/` | Check the optional transport interpretation |
-| 5 | `codes/D4-V2_search_and_rescue_definitive/` | Check the final extended model |
-| 6 | `Report/` | Read the final written explanation |
-| 7 | `slide/` | Review the presentation material |
-
-The final model to inspect first remains:
-
-```text
-codes/D4-V2_search_and_rescue_definitive/
-```
-
-The core assignment deliverable remains:
-
-```text
-codes/D4-V2_search_and_rescue/
-```
