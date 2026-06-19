@@ -1,7 +1,8 @@
 ; Plan for problem_exploration.pddl
-; The robot explores the building, inspects rooms, detects the victim, and rescues.
-; This approximates unknown victim location in classical PDDL through explicit inspected predicates.
-; Rescue is the final action and is possible only after victim-detected has been produced.
+; The robot starts at entrance.
+; It explores the building, inspects rooms, detects the victim, and rescues.
+; This approximates unknown victim location in classical PDDL through explicit inspection.
+; Detection is required before rescue because rescue depends on victim-detected.
 
 0.0000: (move rescuebot entrance corridor)
 0.0010: (move rescuebot corridor lab)
@@ -19,5 +20,6 @@
 
 ; Planner result:
 ; Solution found.
+; Planner found 1 plan.
 ; Plan length: 13 steps.
 ; Plan cost: 13.
