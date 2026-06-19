@@ -1,4 +1,3 @@
-
 # AI2 Assignment 1 — D4-V2 Search and Rescue with PDDL/PDDL+
 
 <p align="center">
